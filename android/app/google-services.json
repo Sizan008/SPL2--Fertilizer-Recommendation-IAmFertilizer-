@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "626401877743",
+    "project_id": "iamfertilizer-51780",
+    "storage_bucket": "iamfertilizer-51780.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:626401877743:android:72615b1be23eca042a851a",
+        "android_client_info": {
+          "package_name": "com.example.iamfertilizer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-pRXQQ4-x3HCg28TvtTq-8hiLQstczrg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
