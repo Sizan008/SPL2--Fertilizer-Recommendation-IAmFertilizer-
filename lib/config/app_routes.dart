@@ -21,7 +21,8 @@ class AppRoutes {
       register: (context) => const RegisterScreen(),
       verifyEmail: (context) => const VerifyEmailScreen(),
       forgotPassword: (context) => const ForgotPasswordScreen(),
-      // home: (context) => const HomeScreen(), // হোম স্ক্রিন বানালে এটি আনকমেন্ট করবেন
+      home: (context) => const HomeScreen(), // হোম স্ক্রিন বানালে এটি আনকমেন্ট করবেন
+      //upload: (context) => const UploadPhotoScreen(), // এটি পরে বানাবো, আপাতত এরর এড়াতে এটি কমেন্ট রাখতে পারেন অথবা ফাইলের নাম ঠিক থাকলে কাজ করবে।
     };
   }
 }
