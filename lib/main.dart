@@ -1,16 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'config/firebase_options.dart';
 import 'config/app_routes.dart';
 
 void main() async {
-  // ১. ফ্লাটার বাইন্ডিং নিশ্চিত করা
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ২. ফায়ারবেস ইনিশিয়ালাইজ করা (firebase_options.dart থাকতে হবে)
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp();
 
   runApp(const MyApp());
 }
