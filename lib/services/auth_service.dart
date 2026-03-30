@@ -1,76 +1,61 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // আপনার পিসির IP (Localhost এ কাজ করলে 10.0.2.2 ব্যবহার করতে হয় অ্যান্ড্রয়েড এমুলেটরে)
+  final String baseUrl = "http://10.0.2.2:8000/auth";
 
-  // ১. রেজিস্ট্রেশন (Email, Password + Name & Location)
+  // ১. রেজিস্ট্রেশন
   Future<String?> registerFarmer({
     required String name,
     required String location,
     required String email,
     required String password,
   }) async {
-    try {
-      // Firebase Auth-এ ইউজার তৈরি
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+    final response = await http.post(
+      Uri.parse('$baseUrl/register'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "name": name,
+        "location": location,
+        "email": email,
+        "password": password,
+      }),
+    );
 
-      User? user = result.user;
-
-      if (user != null) {
-        // ইউজারের নাম এবং লোকেশন Firestore-এ সেভ করা
-        await _firestore.collection('users').doc(user.uid).set({
-          'uid': user.uid,
-          'name': name,
-          'location': location,
-          'email': email,
-          'createdAt': DateTime.now(),
-        });
-
-        // ভেরিফিকেশন ইমেইল পাঠানো
-        await user.sendEmailVerification();
-      }
+    if (response.statusCode == 201) {
       return "success";
-    } catch (e) {
-      return e.toString();
+    } else {
+      final error = jsonDecode(response.body);
+      return error['detail'] ?? "Registration failed";
     }
   }
 
-  // ২. লগইন
-  // lib/services/auth_service.dart এর ভেতর loginFarmer ফাংশনটি এভাবে আপডেট করুন
-
+  // ২. লগইন (JWT Token সংগ্রহ করা)
   Future<String?> loginFarmer(String email, String password) async {
-    try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
-      User? user = result.user;
+    final response = await http.post(
+      Uri.parse('$baseUrl/login'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"email": email, "password": password}),
+    );
 
-      if (user != null) {
-        // ৩. চেক করছি ইউজার ইমেইল ভেরিফাই করেছে কি না
-        if (!user.emailVerified) {
-          await _auth.signOut(); // ভেরিফাই না করলে লগআউট করিয়ে দেব
-          return "Please verify your email before logging in.";
-        }
-      }
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      // টোকেনটি মোবাইলের লোকাল স্টোরেজে সেভ করা
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', data['access_token']);
+
       return "success";
-    } catch (e) {
-      return e.toString();
+    } else {
+      return "Invalid email or password";
     }
   }
 
-  // ৩. পাসওয়ার্ড রিসেট ইমেইল
-  Future<void> resetPassword(String email) async {
-    await _auth.sendPasswordResetEmail(email: email);
-  }
-
-  // ৪. লগআউট
+  // ৩. লগআউট
   Future<void> logout() async {
-    await _auth.signOut();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
   }
-
-  // ৫. কারেন্ট ইউজার চেক (লগইন আছে কি নেই)
-  User? get currentUser => _auth.currentUser;
 }
