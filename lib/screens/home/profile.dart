@@ -94,7 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         _buildProfileCard(Icons.location_on, "Location", data['location'] ?? "Not set"),
                         const SizedBox(height: 10),
-                        _buildProfileCard(Icons.verified_user, "Status", user!.emailVerified ? "Verified Farmer" : "Unverified"),
+                        _buildProfileCard(Icons.verified_user, "Status", user!.emailVerified ? "Verified User" : "Unverified"),
                         const SizedBox(height: 30),
 
                         // Logout Button

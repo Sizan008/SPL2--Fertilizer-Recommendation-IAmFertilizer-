@@ -41,9 +41,20 @@ class AuthService {
   }
 
   // ২. লগইন
+  // lib/services/auth_service.dart এর ভেতর loginFarmer ফাংশনটি এভাবে আপডেট করুন
+
   Future<String?> loginFarmer(String email, String password) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      User? user = result.user;
+
+      if (user != null) {
+        // ৩. চেক করছি ইউজার ইমেইল ভেরিফাই করেছে কি না
+        if (!user.emailVerified) {
+          await _auth.signOut(); // ভেরিফাই না করলে লগআউট করিয়ে দেব
+          return "Please verify your email before logging in.";
+        }
+      }
       return "success";
     } catch (e) {
       return e.toString();
