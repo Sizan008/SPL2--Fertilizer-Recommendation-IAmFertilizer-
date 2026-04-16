@@ -15,7 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
 
-  bool _isLoading = false; // লোডিং দেখানোর জন্য
+  bool _isLoading = false;
 
   void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
@@ -23,8 +23,8 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = true;
       });
 
-      // Firebase Login Call
-      String? result = await _authService.loginFarmer(
+      // API Login Call (Updated: Now receives a Map)
+      var result = await _authService.loginFarmer(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
@@ -33,17 +33,17 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = false;
       });
 
-      if (result == "success") {
+      // চেক করা হচ্ছে সফল কি না
+      if (result['success'] == true) {
         if (mounted) {
-          // সফল হলে সরাসরি হোম পেজে নিয়ে যাবে এবং পিছনের সব রুট মুছে দিবে
           Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
         }
       } else {
-        // এরর হলে মেসেজ দেখাবে
+        // এরর মেসেজ দেখানো
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result ?? "Login failed"),
+              content: Text(result['message'] ?? "Login failed"),
               backgroundColor: Colors.red,
             ),
           );
@@ -58,7 +58,10 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(begin: Alignment.topRight, colors: [Color(0xff11998e), Color(0xff38ef7d)]),
+          gradient: LinearGradient(
+              begin: Alignment.topRight,
+              colors: [Color(0xff11998e), Color(0xff38ef7d)]
+          ),
         ),
         child: Column(
           children: [
@@ -73,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(50)),
                 ),
-                child: SingleChildScrollView( // কিবোর্ড উঠলে যাতে সমস্যা না হয়
+                child: SingleChildScrollView(
                   child: Form(
                     key: _formKey,
                     child: Column(

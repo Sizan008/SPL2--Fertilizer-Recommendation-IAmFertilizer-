@@ -34,7 +34,7 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # Backend API & Authentication
-  http: ^1.2.1
+  http: ^1.6.0
   shared_preferences: ^2.3.2  # JWT Token সেভ করার জন্য (খুবই জরুরি)
 
   # Real-time Chat

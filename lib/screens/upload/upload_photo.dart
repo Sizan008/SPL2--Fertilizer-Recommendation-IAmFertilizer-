@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../services/fastapi_service.dart';
 
 class UploadPhotoScreen extends StatefulWidget {
   const UploadPhotoScreen({super.key});
@@ -12,8 +13,9 @@ class UploadPhotoScreen extends StatefulWidget {
 class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
   File? _image;
   final picker = ImagePicker();
+  bool _isLoading = false; // লোডিং স্টেট
 
-  // ছবি তোলার ফাংশন
+  // ছবি তোলার বা গ্যালারি থেকে নেওয়ার ফাংশন
   Future getImage(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);
     if (pickedFile != null) {
@@ -21,6 +23,65 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
         _image = File(pickedFile.path);
       });
     }
+  }
+
+  // এনালাইসিস বাটন প্রেস করলে যা হবে
+  void _analyzeImage() async {
+    if (_image == null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    // API কল করা
+    var result = await FastApiService.uploadCropImage(_image!.path);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (result['success']) {
+      // সাকসেস হলে একটি ডায়লগ বক্সে রেজাল্ট দেখানো
+      _showResultDialog(
+        result['data']['disease'],
+        result['data']['recommendation'],
+        result['data']['confidence'] ?? "N/A",
+      );
+    } else {
+      // এরর হলে মেসেজ দেখানো
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'])),
+      );
+    }
+  }
+
+  // রেজাল্ট দেখানোর ডায়লগ বক্স
+  void _showResultDialog(String disease, String recommendation, String confidence) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("Analysis Result", style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Disease: $disease", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent)),
+            const SizedBox(height: 5),
+            Text("Confidence: $confidence"),
+            const Divider(),
+            const Text("Recommendation:", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(recommendation),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK", style: TextStyle(color: Color(0xff11998e))),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -64,7 +125,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
             ),
             const SizedBox(height: 30),
 
-            // বাটন সেকশন
+            // বাটন সেকশন (ক্যামেরা ও গ্যালারি)
             Row(
               children: [
                 _buildActionButton(Icons.camera_alt, "Camera", () => getImage(ImageSource.camera)),
@@ -83,11 +144,15 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff11998e),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  elevation: 5,
                 ),
-                onPressed: _image == null ? null : () {
-                  // এখানে FastAPI-তে ছবি পাঠানোর ফাংশন কল হবে
-                },
-                child: const Text("Get Recommendation", style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+                onPressed: (_image == null || _isLoading) ? null : _analyzeImage,
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                  "Get Recommendation",
+                  style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ],
@@ -96,6 +161,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
     );
   }
 
+  // কাস্টম বাটন উইজেট
   Widget _buildActionButton(IconData icon, String label, VoidCallback onTap) {
     return Expanded(
       child: InkWell(
