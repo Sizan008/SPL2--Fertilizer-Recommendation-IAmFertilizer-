@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart';
-import '../../utils/validators.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:iamfertilizer/services/auth_service.dart';
+import 'package:iamfertilizer/utils/validators.dart';
+import 'package:iamfertilizer/screens/auth/register.dart'; // রেজিস্টার পেজ ইমপোর্ট
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,40 +16,21 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
-
   bool _isLoading = false;
 
   void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
+      var result = await _authService.loginFarmer(_emailController.text.trim(), _passwordController.text.trim());
+      setState(() => _isLoading = false);
 
-      // API Login Call (Updated: Now receives a Map)
-      var result = await _authService.loginFarmer(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
-      );
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      // চেক করা হচ্ছে সফল কি না
       if (result['success'] == true) {
-        if (mounted) {
-          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-        }
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_email', _emailController.text.trim());
+        await prefs.setInt('user_id', result['user_id'] ?? 1);
+        if (mounted) Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       } else {
-        // এরর মেসেজ দেখানো
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(result['message'] ?? "Login failed"),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result['message'] ?? "Login failed"), backgroundColor: Colors.red));
       }
     }
   }
@@ -56,91 +39,24 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topRight,
-              colors: [Color(0xff11998e), Color(0xff38ef7d)]
+        decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topRight, colors: [Color(0xff11998e), Color(0xff38ef7d)])),
+        child: Padding(
+          padding: const EdgeInsets.all(30),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.eco, size: 80, color: Colors.white),
+              const SizedBox(height: 20),
+              Form(key: _formKey, child: Column(children: [
+                TextFormField(controller: _emailController, validator: Validators.validateEmail, decoration: const InputDecoration(labelText: "Email", filled: true, fillColor: Colors.white, border: OutlineInputBorder())),
+                const SizedBox(height: 20),
+                TextFormField(controller: _passwordController, obscureText: true, decoration: const InputDecoration(labelText: "Password", filled: true, fillColor: Colors.white, border: OutlineInputBorder())),
+              ])),
+              Align(alignment: Alignment.centerRight, child: TextButton(onPressed: () => Navigator.pushNamed(context, '/forgot-password'), child: const Text("Forgot Password?", style: TextStyle(color: Colors.white)))),
+              ElevatedButton(onPressed: _isLoading ? null : _handleLogin, child: _isLoading ? const CircularProgressIndicator() : const Text("LOGIN")),
+              TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())), child: const Text("Don't have an account? Register Now", style: TextStyle(color: Colors.white))),
+            ],
           ),
-        ),
-        child: Column(
-          children: [
-            const SizedBox(height: 100),
-            const Icon(Icons.eco, size: 100, color: Colors.white),
-            const Text("IAmFertilizer", style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 50),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(30),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(50)),
-                ),
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          controller: _emailController,
-                          validator: Validators.validateEmail,
-                          decoration: InputDecoration(
-                            labelText: "Email",
-                            prefixIcon: const Icon(Icons.email_outlined),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                          controller: _passwordController,
-                          validator: Validators.validatePassword,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: "Password",
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
-                            child: const Text("Forgot Password?", style: TextStyle(color: Colors.green)),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // LOGIN BUTTON
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xff11998e),
-                            minimumSize: const Size(double.infinity, 55),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          ),
-                          onPressed: _isLoading ? null : _handleLogin,
-                          child: _isLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text("LOGIN", style: TextStyle(fontSize: 18, color: Colors.white)),
-                        ),
-
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text("Don't have an account?"),
-                            TextButton(
-                              onPressed: () => Navigator.pushNamed(context, '/register'),
-                              child: const Text("Register Now", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff11998e))),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

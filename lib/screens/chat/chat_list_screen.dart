@@ -1,44 +1,44 @@
 import 'package:flutter/material.dart';
-import 'chat_room_screen.dart';
+import 'package:iamfertilizer/services/chat_service.dart';
+import 'package:iamfertilizer/screens/chat/chat_room_screen.dart';
 
-class ChatListScreen extends StatelessWidget {
-  const ChatListScreen({super.key});
+class ChatListScreen extends StatefulWidget {
+  final int currentUserId;
+  const ChatListScreen({super.key, required this.currentUserId});
+
+  @override
+  State<ChatListScreen> createState() => _ChatListScreenState();
+}
+
+class _ChatListScreenState extends State<ChatListScreen> {
+  final ChatService _chatService = ChatService();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text("Agri-Messages", style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: ListView.separated(
-        itemCount: 3,
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          return ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            leading: const CircleAvatar(
-              radius: 25,
-              backgroundImage: NetworkImage('https://via.placeholder.com/150'),
-            ),
-            title: const Text("Dr. Rahim Ahmed", style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: const Text("Your crop needs more nitrogen...", maxLines: 1, overflow: TextOverflow.ellipsis),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text("10:30 AM", style: TextStyle(fontSize: 12, color: Colors.grey)),
-                SizedBox(height: 5),
-                CircleAvatar(radius: 8, backgroundColor: Color(0xff11998e), child: Text("1", style: TextStyle(fontSize: 10, color: Colors.white))),
-              ],
-            ),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatRoomScreen()));
-            },
-          );
-        },
-      ),
-    );
+    return DefaultTabController(length: 3, child: Scaffold(
+      appBar: AppBar(title: const Text("Community"), bottom: const TabBar(tabs: [Tab(text: "Chats"), Tab(text: "Requests"), Tab(text: "Search")])),
+      body: TabBarView(children: [
+        const Center(child: Text("Active Conversations")),
+        FutureBuilder<List<dynamic>>(
+          future: _chatService.getReceivedRequests(widget.currentUserId),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+            return ListView.builder(itemCount: snapshot.data!.length, itemBuilder: (context, index) {
+              var req = snapshot.data![index];
+              return ListTile(
+                title: Text("Request from Farmer ID: ${req['sender_id']}"),
+                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                  IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: () async {
+                    await _chatService.acceptRequest(req['id']);
+                    setState(() {});
+                  }),
+                ]),
+              );
+            });
+          },
+        ),
+        const Center(child: Text("Use Search Tab in Login logic")),
+      ]),
+    ));
   }
 }
