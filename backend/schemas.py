@@ -8,6 +8,20 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
 
+
+
+# রেজিস্ট্রেশনের জন্য
+class UserCreate(BaseModel):
+    name: str
+    location: str
+    email: EmailStr
+    password: str
+
+# লগইনের জন্য (এটিই এরর দিচ্ছিল)
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
 class UserOut(BaseModel):
     id: int
     name: str
