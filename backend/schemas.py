@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import List, Optional
+
 
 class UserCreate(BaseModel):
     name: str
@@ -9,29 +9,61 @@ class UserCreate(BaseModel):
     password: str
 
 
-
-# রেজিস্ট্রেশনের জন্য
-class UserCreate(BaseModel):
-    name: str
-    location: str
-    email: EmailStr
-    password: str
-
-# লগইনের জন্য (এটিই এরর দিচ্ছিল)
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+
 class UserOut(BaseModel):
     id: int
     name: str
+    location: str
     email: EmailStr
+    is_verified: bool
+
     class Config:
         from_attributes = True
 
-class PredictionOut(BaseModel):
+
+class FarmerOut(BaseModel):
+    id: int
+    name: str
+    location: str
+    email: EmailStr
+
+    class Config:
+        from_attributes = True
+
+
+class MessageOut(BaseModel):
+    id: int
+    sender_id: int
+    receiver_id: int
+    content: str
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ChatRequestOut(BaseModel):
+    id: int
+    sender_id: int
+    receiver_id: int
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class HistoryOut(BaseModel):
+    id: int
+    image_name: str | None = None
     disease: str
     confidence: str
     recommendation: str
+    created_at: datetime
+
     class Config:
         from_attributes = True

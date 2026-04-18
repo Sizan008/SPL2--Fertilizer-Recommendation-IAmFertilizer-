@@ -1,20 +1,24 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 
-# আপনার PostgreSQL ডাটাবেস URL
+# PostgreSQL database URL
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres123@localhost/iamfertilizer_db"
 
-# ডাটাবেস ইঞ্জিন তৈরি করা
+# Database engine
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-# সেশন ফ্যাক্টরি তৈরি করা
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Session factory
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
 
-# ডিক্লারেটিভ বেস (এটি মডেল তৈরির সময় ব্যবহার হবে)
+# Base class for models
 Base = declarative_base()
 
-# ডাটাবেস ডিপেন্ডেন্সি ফাংশন
+
+# Dependency for getting DB session
 def get_db():
     db = SessionLocal()
     try:
@@ -22,7 +26,8 @@ def get_db():
     finally:
         db.close()
 
-# টেবিল তৈরি করার ফাংশন (প্রয়োজন হলে মেইন ফাইলে কল করবেন)
+
+# Create tables
 def init_db():
-    import models # এখানে আপনার মডেল ফাইলটি ইম্পোর্ট করতে হবে
+    from backend import models
     Base.metadata.create_all(bind=engine)
