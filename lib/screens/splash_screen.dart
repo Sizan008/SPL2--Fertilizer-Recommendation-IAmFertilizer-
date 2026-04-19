@@ -15,23 +15,17 @@ class _SplashScreenState extends State<SplashScreen> {
     _checkAuthStatus();
   }
 
-  // লগইন স্ট্যাটাস চেক করার ফাংশন
   void _checkAuthStatus() async {
-    // ২ সেকেন্ড ওয়েট করবে (অ্যানিমেশন বা লোগো দেখানোর জন্য)
     await Future.delayed(const Duration(seconds: 2));
-
-    // Shared Preferences থেকে টোকেন চেক করা
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    if (mounted) {
-      if (token != null) {
-        // টোকেন থাকলে সরাসরি হোম পেজে
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        // টোকেন না থাকলে লগইন পেজে
-        Navigator.pushReplacementNamed(context, '/login');
-      }
+    if (!mounted) return;
+
+    if (token != null && token.isNotEmpty) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 

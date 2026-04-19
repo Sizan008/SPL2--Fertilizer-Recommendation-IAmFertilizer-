@@ -6,13 +6,13 @@ class HistoryService {
   final String baseUrl = "http://10.0.2.2:8000/history";
 
   Future<List<dynamic>> getCropHistory() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token'); // লগইন করার সময় সেভ করা টোকেন
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
 
     final response = await http.get(
       Uri.parse(baseUrl),
       headers: {
-        "Authorization": "Bearer $token", // সার্ভারকে জানানো যে আমি বৈধ ইউজার
+        "Authorization": "Bearer $token",
       },
     );
 
