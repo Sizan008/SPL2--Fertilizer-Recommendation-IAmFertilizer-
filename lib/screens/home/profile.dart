@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:iamfertilizer/services/auth_service.dart';
 import 'package:iamfertilizer/screens/auth/login.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -12,6 +10,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final AuthService _authService = AuthService();
   Map<String, dynamic>? userData;
   bool isLoading = true;
 
@@ -22,32 +21,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _fetchUserProfile() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? email = prefs.getString('user_email'); // লগইন পেজ থেকে সেভ করা ইমেইল
+    final result = await _authService.getMyProfile();
+    if (!mounted) return;
 
-    if (email == null) {
-      setState(() => isLoading = false);
-      return;
-    }
-
-    try {
-      final response = await http.get(Uri.parse("http://10.0.2.2:8000/auth/profile?email=$email"));
-      if (response.statusCode == 200) {
-        setState(() {
-          userData = jsonDecode(response.body);
-          isLoading = false;
-        });
+    setState(() {
+      isLoading = false;
+      if (result['success'] == true) {
+        userData = result['data'];
       }
-    } catch (e) {
-      setState(() => isLoading = false);
-    }
+    });
   }
 
   void _logout(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await _authService.logout();
     if (context.mounted) {
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (route) => false);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (_) => false,
+      );
     }
   }
 
@@ -55,7 +47,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: isLoading ? const Center(child: CircularProgressIndicator()) : Column(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
         children: [
           Container(
             padding: const EdgeInsets.only(top: 60, bottom: 30),
@@ -66,10 +60,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: Column(
               children: [
-                const CircleAvatar(radius: 50, backgroundColor: Colors.white, child: Icon(Icons.person, size: 50, color: Color(0xff11998e))),
+                const CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person, size: 50, color: Color(0xff11998e)),
+                ),
                 const SizedBox(height: 15),
-                Text(userData?['name'] ?? "Farmer", style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                Text("FarmerID: ${userData?['id'] ?? 'N/A'}", style: const TextStyle(color: Colors.white70, fontSize: 16)),
+                Text(
+                  userData?['name'] ?? "Farmer",
+                  style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  "FarmerID: ${userData?['id'] ?? 'N/A'}",
+                  style: const TextStyle(color: Colors.white70, fontSize: 16),
+                ),
               ],
             ),
           ),
@@ -77,13 +81,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               children: [
-                ListTile(leading: const Icon(Icons.email, color: Color(0xff11998e)), title: Text(userData?['email'] ?? "N/A")),
-                ListTile(leading: const Icon(Icons.location_on, color: Color(0xff11998e)), title: Text(userData?['location'] ?? "N/A")),
+                ListTile(
+                  leading: const Icon(Icons.email, color: Color(0xff11998e)),
+                  title: Text(userData?['email'] ?? "N/A"),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.location_on, color: Color(0xff11998e)),
+                  title: Text(userData?['location'] ?? "N/A"),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.verified_user, color: Color(0xff11998e)),
+                  title: Text((userData?['is_verified'] ?? false) ? "Verified Account" : "Not Verified"),
+                ),
                 const Divider(),
                 ListTile(
                   onTap: () => _logout(context),
                   leading: const Icon(Icons.logout, color: Colors.red),
-                  title: const Text("Logout", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  title: const Text(
+                    "Logout",
+                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),
