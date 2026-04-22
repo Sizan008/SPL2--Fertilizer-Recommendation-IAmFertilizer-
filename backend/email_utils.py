@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 
-load_dotenv()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 conf = ConnectionConfig(
     MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
@@ -14,6 +15,7 @@ conf = ConnectionConfig(
     MAIL_SSL_TLS=False,
     USE_CREDENTIALS=True,
 )
+
 
 async def send_verification_email(email: str, token: str):
     message = MessageSchema(
@@ -27,6 +29,7 @@ async def send_verification_email(email: str, token: str):
     )
     fm = FastMail(conf)
     await fm.send_message(message)
+
 
 async def send_reset_password_email(email: str):
     message = MessageSchema(
