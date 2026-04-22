@@ -1,8 +1,13 @@
+import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+load_dotenv()
 
-# PostgreSQL database URL
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres123@localhost/iamfertilizer_db"
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+
+
+
 
 # Database engine
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
