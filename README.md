@@ -57,51 +57,29 @@ Based on the detected disease class, the system provides fertilizer suggestions 
     Chat system between farmers
     User profile details
    
-#Tech Stack
-Frontend
-Flutter
-Backend (Planned)
-FastAPI (Python)
-Database (Planned)
-PostgreSQL
-Machine Learning (Planned)
-Model trained using Kaggle dataset
-Authentication (Planned)
-JWT-based authentication
-Email verification via SMTP
-Project Architecture (Planned)
+# Tech Stack:
+   1. Frontend- Flutter
+   2. Backend- FastAPI (Python)
+   3. Database- PostgreSQL
+   4. Machine Learning- CNN model
+
+A. Email verification by custom token-based auth
+B. Chat System implemented by REST API + DB-backed polling chat
+
+   
 Flutter App
     |
     | HTTP API
     v
 FastAPI Backend
     |
-    |-- Authentication (JWT)
+    |-- Authentication 
     |-- ML Inference
-    |-- Chat System (WebSocket)
+    |-- Chat System 
     |
     v
 PostgreSQL Database
-Folder Structure (Planned)
-project-root/
-│
-├── frontend/        # Flutter app
-├── backend/         # FastAPI server
-├── ml-model/        # ML training and inference
-├── docs/            # SRS and documentation
-└── README.md
-Installation (Frontend Only)
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name/frontend
-flutter pub get
-flutter run
-Future Work
-Implement FastAPI backend
-Integrate PostgreSQL database
-Train and integrate ML model
-Implement authentication (JWT + email verification)
-Develop real-time chat system using WebSocket
-Deploy application
-Contributors
+
+Contributors:- 
 Fahim Shahryer Sizan
 Mostafizur Rahman Rifat
