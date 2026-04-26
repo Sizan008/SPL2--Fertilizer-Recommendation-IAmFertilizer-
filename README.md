@@ -52,16 +52,16 @@ Based on the detected disease class, the system provides fertilizer suggestions 
 | Sheath Blight | Use MOP, avoid excess Urea |
 
 3. Additional Features:
-    History of previous analysis
-    Find Farmer (search by name or id or location) and send request
-    Chat system between farmers
-    User profile details
+    History of previous analysis,
+     Find Farmer (search by name or id or location) and send request, 
+      Chat system between farmers,
+        User profile details,
    
 # Tech Stack:
-   1. Frontend- Flutter
-   2. Backend- FastAPI (Python)
-   3. Database- PostgreSQL
-   4. Machine Learning- CNN model
+   1. Frontend- Flutter,
+   2. Backend- FastAPI (Python),
+   3. Database- PostgreSQL,
+   4. Machine Learning- CNN model, 
 
 A. Email verification by custom token-based auth
 B. Chat System implemented by REST API + DB-backed polling chat
@@ -81,5 +81,7 @@ FastAPI Backend
 PostgreSQL Database
 
 Contributors:- 
-Fahim Shahryer Sizan
+
+Fahim Shahryer Sizan,
+
 Mostafizur Rahman Rifat
