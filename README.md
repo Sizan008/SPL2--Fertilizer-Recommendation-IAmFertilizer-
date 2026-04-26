@@ -1,31 +1,29 @@
-# iamfertilizer
+# iamfertilizer-Smart Fertilizer Recommendation Mobile App
 
-Smart Fertilizer Recommendation Project.
-
-Smart Fertilizer Recommendation System
+Identify disease of Rice Leaf & Smart Fertilizer Recommendation:-
 Overview
 
-Smart Fertilizer Recommendation System is a mobile-based application designed to assist paddy farmers in detecting nutrient deficiencies in rice leaves and receiving fertilizer recommendations using machine learning.
+Smart Fertilizer Recommendation System is a mobile-based application designed to assist paddy/rice farmers in detecting disease in rice leaves and receiving fertilizer recommendations using machine learning.
 
-The system allows users to capture or upload an image of a rice leaf, analyze it using a trained ML model, and get instant recommendations such as Urea, TSP, or MOP based on detected deficiencies (Nitrogen, Phosphorus, Potassium).
+The system allows users to capture or upload an image of a rice leaf, analyze it using a trained ML model, and get instant recommendations such as Urea, TSP, or MOP based on detected disease.
 
-Current Status
+# Current Status:
 
-This project is currently in the initial development phase.
+1. Frontend (Flutter): UI design completed
+2. Backend (FastAPI): Completed
+3. Machine Learning Model: used CNN, Implementation completed
+4. Database: PostgreSQL- completed
+5. Backend Hosting is not completed, we will host it on render soon.
 
-Frontend (Flutter): UI design completed
-Backend (FastAPI): Not implemented yet
-Machine Learning Model: Planned (Kaggle dataset will be used)
-Database: Planned (PostgreSQL)
-Features
-Authentication
-User registration with email and password
-Email verification
-Login system
-Forgot password and reset password
-Core Functionality
-Capture or upload leaf image
-Analyze crop condition using ML model
+#Features
+1. Authentication
+User registration with email and password,
+Email verification,
+Login system,
+Forgot password & reset password option
+2. Core Functionality
+Capture or upload leaf image,
+Analyze crop condition using ML model,
 Detect:
 Healthy
 Nitrogen deficiency
